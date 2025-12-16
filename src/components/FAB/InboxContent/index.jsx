@@ -7,11 +7,17 @@ import ChatContent from '../ChatContent';
 import { useState } from 'react';
 import ArrowLeftIcon from '@/assets/arrow-left-icon.svg';
 import CloseIcon from '@/assets/close-icon.svg';
+import useDebounce from '@/hooks/useDebouse';
 
 export default function InboxContent({ isOpen }) {
   const listRef = useRef(null);
 
+  const [searchQuery, setSearchQuery] = useState('');
   const [subject, setSubject] = useState(null);
+
+  const debouncedSearchParams = useDebounce(searchQuery, 500, () => {
+    triggerInbox({ id: 1 });
+  });
 
   const [triggerInbox, { data: dataInbox, isFetching: isFetchingInbox }] =
     useLazyGetInboxQuery();
@@ -36,6 +42,15 @@ export default function InboxContent({ isOpen }) {
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (debouncedSearchParams) {
+      triggerInbox({ id: 1, search: searchQuery });
+
+      console.log({ searchQuery });
+      console.log({ debouncedSearchParams });
+    }
+  }, [debouncedSearchParams]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -55,9 +70,14 @@ export default function InboxContent({ isOpen }) {
                 >
                   <img src={ArrowLeftIcon} />
                 </button>
-                <p className='text-blue-1 font-bold truncate'>
-                  {subject.title}
-                </p>
+                <div className='flex flex-col gap-[2px]'>
+                  <p className='text-blue-1 font-bold truncate'>
+                    {subject.title}
+                  </p>
+                  <p className='text-xs text-gray-1'>
+                    {subject.totalParticipants} Participants
+                  </p>
+                </div>
                 <button
                   className='cursor-pointer'
                   onClick={() => setSubject(null)}
@@ -69,6 +89,7 @@ export default function InboxContent({ isOpen }) {
               <input
                 placeholder='Search'
                 className='w-full px-5 py-[10px] border-gray-3 border rounded-[5px]'
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             )}
           </div>
@@ -93,6 +114,7 @@ export default function InboxContent({ isOpen }) {
                       setSubject({
                         title: item.subject,
                         id: item.id,
+                        totalParticipants: item.participantIds.length,
                       })
                     }
                   >
@@ -110,7 +132,7 @@ export default function InboxContent({ isOpen }) {
                         <p className='text-gray-2 text-sm font-semibold mt-2'>
                           {item.lastMessageUser.name}
                         </p>
-                        <p className='text-gray-2 text-sm'>
+                        <p className='text-gray-2 text-sm break-words whitespace-normal'>
                           {item.lastMessage}
                         </p>
                       </div>

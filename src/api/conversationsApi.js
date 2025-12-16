@@ -8,9 +8,10 @@ const conversationsApi = createApi({
   ...RTKQueryConfig,
   endpoints: (builder) => ({
     getInbox: builder.query({
-      query: ({ id }) => ({
+      query: ({ id, search }) => ({
         url: CONVERSATIONS_URL + INBOX_URL + `/${id}`,
         method: 'GET',
+        params: { search },
       }),
     }),
     getMessage: builder.query({
