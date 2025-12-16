@@ -46,11 +46,22 @@ export default function ChatContent({ data }) {
   };
 
   const formatChatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    let result = '';
+
+    if (
+      new Date().toLocaleDateString('en-CA', { timeZone: 'UTC' }) ===
+      new Date(dateString).toLocaleDateString('en-CA', { timeZone: 'UTC' })
+    ) {
+      result = 'Today ';
+    }
+
+    result += new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: '2-digit',
     });
+
+    return result;
   };
 
   const isSameDate = (dateA, dateB, timeZone = 'UTC') => {

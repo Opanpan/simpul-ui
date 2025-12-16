@@ -43,11 +43,14 @@ export default function InboxContent({ isOpen }) {
   }, [isOpen]);
 
   useEffect(() => {
+    if (!subject) {
+      triggerInbox({ id: 1 });
+    }
+  }, [subject]);
+
+  useEffect(() => {
     if (debouncedSearchParams) {
       triggerInbox({ id: 1, search: searchQuery });
-
-      console.log({ searchQuery });
-      console.log({ debouncedSearchParams });
     }
   }, [debouncedSearchParams]);
 
